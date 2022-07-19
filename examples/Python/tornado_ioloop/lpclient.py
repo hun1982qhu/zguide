@@ -34,7 +34,7 @@ def run_client(context):
     while retries_left:
         sequence += 1
         request = str(sequence)
-        print("I: Sending (%s)" % request)
+        print(f"I: Sending ({request})")
         yield client.send_string(request)
         expect_reply = True
         while expect_reply:
@@ -45,11 +45,11 @@ def run_client(context):
                 if not reply:
                     break
                 if int(reply) == sequence:
-                    print("I: Server replied OK (%s)" % reply)
+                    print(f"I: Server replied OK ({reply})")
                     retries_left = REQUEST_RETRIES
                     expect_reply = False
                 else:
-                    print("E: Malformed reply from server: %s" % reply)
+                    print(f"E: Malformed reply from server: {reply}")
             else:
                 print("W: No response from server, retrying...")
                 # Socket is confused. Close and remove it.
@@ -62,7 +62,7 @@ def run_client(context):
                 if retries_left == 0:
                     print("E: Server seems to be offline, abandoning")
                     return
-                print("I: Reconnecting and resending (%s)" % request)
+                print(f"I: Reconnecting and resending ({request})")
                 # Create new connection
                 client = context.socket(zmq.REQ)
                 client.connect(SERVER_ENDPOINT)

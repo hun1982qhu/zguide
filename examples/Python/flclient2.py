@@ -36,7 +36,7 @@ class FLClient(object):
 
 
         # Blast the request to all connected servers
-        for server in xrange(self.servers):
+        for _ in xrange(self.servers):
             self.socket.send_multipart(msg)
 
         # Wait for a matching reply to arrive from anywhere

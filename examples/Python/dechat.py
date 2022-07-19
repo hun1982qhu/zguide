@@ -56,12 +56,12 @@ def main():
     listen_thread.start()
 
     bcast = ctx.socket(zmq.PUB)
-    bcast.bind("tcp://%s:9000" % args.interface)
-    print("starting chat on %s:9000 (%s.*)" % (args.interface, masked))
+    bcast.bind(f"tcp://{args.interface}:9000")
+    print(f"starting chat on {args.interface}:9000 ({masked}.*)")
     while True:
         try:
             msg = raw_input()
-            bcast.send_string("%s: %s" % (args.user, msg))
+            bcast.send_string(f"{args.user}: {msg}")
         except KeyboardInterrupt:
             break
     bcast.close(linger=0)

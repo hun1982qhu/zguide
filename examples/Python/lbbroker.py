@@ -20,20 +20,19 @@ NBR_WORKERS = 3
 def client_task(ident):
     """Basic request-reply client using REQ socket."""
     socket = zmq.Context().socket(zmq.REQ)
-    socket.identity = u"Client-{}".format(ident).encode("ascii")
+    socket.identity = f"Client-{ident}".encode("ascii")
     socket.connect("ipc://frontend.ipc")
 
     # Send request, get reply
     socket.send(b"HELLO")
     reply = socket.recv()
-    print("{}: {}".format(socket.identity.decode("ascii"),
-                          reply.decode("ascii")))
+    print(f'{socket.identity.decode("ascii")}: {reply.decode("ascii")}')
 
 
 def worker_task(ident):
     """Worker task, using a REQ socket to do load-balancing."""
     socket = zmq.Context().socket(zmq.REQ)
-    socket.identity = u"Worker-{}".format(ident).encode("ascii")
+    socket.identity = f"Worker-{ident}".encode("ascii")
     socket.connect("ipc://backend.ipc")
 
     # Tell broker we're ready for work
@@ -41,8 +40,7 @@ def worker_task(ident):
 
     while True:
         address, empty, request = socket.recv_multipart()
-        print("{}: {}".format(socket.identity.decode("ascii"),
-                              request.decode("ascii")))
+        print(f'{socket.identity.decode("ascii")}: {request.decode("ascii")}')
         socket.send_multipart([address, b"", b"OK"])
 
 

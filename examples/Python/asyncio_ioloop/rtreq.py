@@ -40,7 +40,7 @@ def worker_task(id, context=None):
         total += 1
         # Do some random work
         yield from asyncio.sleep(0.1 * random.random())
-    return ('worker {}'.format(id), total)
+    return f'worker {id}', total
 
 
 @asyncio.coroutine
@@ -74,7 +74,7 @@ def run(loop):
     tasks.append(asyncio.ensure_future(requestor(client)))
     loop.run_until_complete(asyncio.wait(tasks))
     for task in tasks:
-        print('result: {}'.format(task.result()))
+        print(f'result: {task.result()}')
 
 
 def main():

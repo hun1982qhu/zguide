@@ -34,7 +34,7 @@ def step1(loop, context=None):
     sender.connect("inproc://step2")
     msg = b'message from step1'
     sender.send(msg)
-    printdbg('(step1) sent msg: {}'.format(msg))
+    printdbg(f'(step1) sent msg: {msg}')
 
 
 @gen.coroutine
@@ -47,13 +47,13 @@ def step2(loop, context=None):
     loop.add_callback(partial(step1, loop))
     # Wait for signal
     msg = yield receiver.recv()
-    printdbg('(step2) received msg: {}'.format(msg))
+    printdbg(f'(step2) received msg: {msg}')
     # Signal downstream to step 3
     sender = context.socket(zmq.PAIR)
     sender.connect("inproc://step3")
     msg = b'message from step2'
     yield sender.send(msg)
-    printdbg('(step2) sent msg: {}'.format(msg))
+    printdbg(f'(step2) sent msg: {msg}')
 
 
 @gen.coroutine
@@ -67,7 +67,7 @@ def run(loop):
     loop.add_callback(partial(step2, loop))
     # Wait for signal
     msg = yield receiver.recv()
-    print("Test successful!  msg: {}".format(msg))
+    print(f"Test successful!  msg: {msg}")
     # Note that terminating the context and closing the socket does not
     #     work with the async aproach.
     #context.term()

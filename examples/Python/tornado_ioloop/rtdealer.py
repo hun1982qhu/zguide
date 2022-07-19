@@ -33,7 +33,7 @@ def worker_a(context=None):
         request = yield worker.recv()
         finished = request == b"END"
         if finished:
-            print("A received: %s" % total)
+            print(f"A received: {total}")
             break
         total += 1
     print('(worker_a) finished')
@@ -52,7 +52,7 @@ def worker_b(context=None):
         request = yield worker.recv()
         finished = request == b"END"
         if finished:
-            print("B received: %s" % total)
+            print(f"B received: {total}")
             break
         total += 1
     print('(worker_b) finished')
@@ -62,12 +62,12 @@ def worker_b(context=None):
 @gen.coroutine
 def dealer(client):
     print('(dealer) starting')
+    work = b"This is the workload"
     # Send 10 tasks scattered to A twice as often as B
     for _ in range(10):
         # Send two message parts, first the address,
         # and then the workload.
         ident = random.choice([b'A', b'A', b'B'])
-        work = b"This is the workload"
         yield client.send_multipart([ident, work])
     yield client.send_multipart([b'A', b'END'])
     yield client.send_multipart([b'B', b'END'])
@@ -85,7 +85,7 @@ def run(loop):
         worker_b(context),
         dealer(client),
     ]
-    print('responses: {}'.format(responses))
+    print(f'responses: {responses}')
 
 
 def main():

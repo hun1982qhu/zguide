@@ -109,8 +109,7 @@ class CloneServer(object):
         self.sequence += 1
         kvmsg.sequence = self.sequence
         kvmsg.send(self.publisher)
-        ttl = float(kvmsg.get(b'ttl', 0))
-        if ttl:
+        if ttl := float(kvmsg.get(b'ttl', 0)):
             kvmsg[b'ttl'] = b'%f' % (time.time() + ttl)
         kvmsg.store(self.kvmap)
         logging.info("I: publishing update=%d", self.sequence)

@@ -86,7 +86,7 @@ def run_worker(context):
                 print("I: Queue heartbeat")
                 liveness = HEARTBEAT_LIVENESS
             else:
-                print("E: Invalid message: %s" % frames)
+                print(f"E: Invalid message: {frames}")
             interval = INTERVAL_INIT
         else:
             liveness -= 1

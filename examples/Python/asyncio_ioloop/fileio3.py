@@ -104,10 +104,10 @@ def server_task(ctx):
         data = data.encode('utf-8')
         # Send resulting chunk to client
         yield from router.send_multipart([identity, data])
-        print('(server) sent chunk: {} size: {}'.format(count, len(data)))
+        print(f'(server) sent chunk: {count} size: {len(data)}')
         count += 1
         total += len(data)
-    message = 'server sent {} chunks, {} bytes'.format(count, total)
+    message = f'server sent {count} chunks, {total} bytes'
     print('(server) finished')
     return ('server', message)
 
@@ -118,7 +118,7 @@ def monitor(pipe):
     message = None
     try:
         mesg = yield from pipe.recv()
-        message = 'monitor received: {}'.format(mesg)
+        message = f'monitor received: {mesg}'
         print(message)
     except KeyboardInterrupt:
         pass
@@ -136,7 +136,7 @@ def run(loop):
     ]
     loop.run_until_complete(asyncio.wait(tasks))
     results = [task.result() for task in tasks]
-    print('results: {}'.format(results))
+    print(f'results: {results}')
     del a, b
     print('(run) finished')
 

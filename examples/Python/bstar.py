@@ -160,8 +160,7 @@ class BinaryStar(object):
 
     def recv_state(self, msg):
         """Receive state from peer, execute finite state machine"""
-        state = msg[0]
-        if state:
+        if state := msg[0]:
             self.event = int(state)
             self.update_peer_expiry()
         self.execute_fsm()
@@ -173,9 +172,6 @@ class BinaryStar(object):
         if self.execute_fsm():
             print("CLIENT REQUEST")
             self.voter_callback(self.voter_socket, msg)
-        else:
-            # Message will be ignored
-            pass
 
     # -------------------------------------------------------------------------
     #

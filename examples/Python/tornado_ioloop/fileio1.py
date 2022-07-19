@@ -87,7 +87,7 @@ def server_task(ctx):
         if not data:
             break
         count += 1
-    message = 'server sent {} chunks'.format(count)
+    message = f'server sent {count} chunks'
     print(message)
     print('(server_task) finished')
     raise gen.Return(('server', message))
@@ -99,7 +99,7 @@ def monitor(pipe):
     message = None
     try:
         mesg = yield pipe.recv()
-        message = 'monitor received: {}'.format(mesg)
+        message = f'monitor received: {mesg}'
         print(message)
     except KeyboardInterrupt:
         pass
@@ -120,7 +120,7 @@ def run(loop):
         server_task(ctx),
         monitor(a),
     ]
-    print('responses: {}'.format(responses))
+    print(f'responses: {responses}')
     del a, b
     print('(run) finished')
 

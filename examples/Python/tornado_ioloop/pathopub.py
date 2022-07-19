@@ -41,10 +41,11 @@ def run():
         yield gen.sleep(1)
         message = [
             b"%03d" % randint(0, 9),
-            "Off with his head. {}".format(count).encode('utf-8'),
+            f"Off with his head. {count}".encode('utf-8'),
         ]
+
         yield publisher.send_multipart(message)
-        print('sent message: {}'.format(message))
+        print(f'sent message: {message}')
 
 
 def main():

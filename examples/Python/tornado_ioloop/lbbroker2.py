@@ -145,27 +145,26 @@ def run_broker(loop):
                 assert empty == b""
                 reply = message[4]
                 yield frontend.send_multipart([client_addr, b"", reply])
-                printdbg('(run_broker) to frontend -- reply: "{}"'.format(
-                    reply))
+                printdbg(f'(run_broker) to frontend -- reply: "{reply}"')
                 client_nbr -= 1
                 if client_nbr == 0:
                     printdbg('(run_broker) exiting')
                     break   # Exit after N messages
         # poll on frontend only if workers are available
-        if available_workers > 0:
-            if (frontend in socks and socks[frontend] == zmq.POLLIN):
-                # Now get next client request, route to LRU worker
-                # Client request is [address][empty][request]
-                response = yield frontend.recv_multipart()
-                [client_addr, empty, request] = response
-                assert empty == b""
-                #  Dequeue and drop the next worker address
-                available_workers += -1
-                worker_id = workers_list.pop()
-                yield backend.send_multipart(
-                    [worker_id, b"", client_addr, b"", request])
-                printdbg('(run_broker) to backend -- request: "{}"'.format(
-                    request))
+        if available_workers > 0 and (
+            frontend in socks and socks[frontend] == zmq.POLLIN
+        ):
+            # Now get next client request, route to LRU worker
+            # Client request is [address][empty][request]
+            response = yield frontend.recv_multipart()
+            [client_addr, empty, request] = response
+            assert empty == b""
+            #  Dequeue and drop the next worker address
+            available_workers += -1
+            worker_id = workers_list.pop()
+            yield backend.send_multipart(
+                [worker_id, b"", client_addr, b"", request])
+            printdbg(f'(run_broker) to backend -- request: "{request}"')
     #out of infinite loop: do some housekeeping
     printdbg('(run_broker) finishing')
     for worker_id in workers_list:
@@ -183,7 +182,7 @@ def run_broker(loop):
 @gen.coroutine
 def run(loop):
     reply = yield run_broker(loop)
-    printdbg('(run) reply: "{}"'.format(reply))
+    printdbg(f'(run) reply: "{reply}"')
     loop.stop()
 
 

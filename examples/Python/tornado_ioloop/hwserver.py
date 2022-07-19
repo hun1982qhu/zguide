@@ -29,14 +29,14 @@ def run():
     while True:
         #  Wait for next request from client
         message = yield socket.recv()
-        print("Received request: {}".format(message))
+        print(f"Received request: {message}")
         #  Do some 'work'
         yield gen.sleep(1)
         #  Send reply back to client
         message = message.decode('utf-8')
-        message = '{}, world'.format(message)
+        message = f'{message}, world'
         message = message.encode('utf-8')
-        print("Sending reply: {}".format(message))
+        print(f"Sending reply: {message}")
         yield socket.send(message)
 
 

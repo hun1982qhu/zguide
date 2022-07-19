@@ -34,7 +34,7 @@ def run_worker():
     worker.setsockopt_string(zmq.IDENTITY, identity)
     worker.connect("tcp://localhost:5556")
 
-    print("I: (%s) worker ready" % identity)
+    print(f"I: ({identity}) worker ready")
     yield from worker.send_string(LRU_READY)
 
     cycles = 0
@@ -45,12 +45,12 @@ def run_worker():
 
         cycles += 1
         if cycles > 3 and randint(0, 5) == 0:
-            print("I: (%s) simulating a crash" % identity)
+            print(f"I: ({identity}) simulating a crash")
             break
         elif cycles > 3 and randint(0, 5) == 0:
-            print("I: (%s) simulating CPU overload" % identity)
+            print(f"I: ({identity}) simulating CPU overload")
             yield from asyncio.sleep(3)
-        print("I: (%s) normal reply" % identity)
+        print(f"I: ({identity}) normal reply")
         # Do some heavy work
         yield from asyncio.sleep(1)
         yield from worker.send_multipart(msg)

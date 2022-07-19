@@ -42,7 +42,7 @@ def worker_task(id, context=None):
         total += 1
         # Do some random work
         yield gen.sleep(0.1 * random.random())
-    raise gen.Return(('worker {}'.format(id), total))
+    raise gen.Return((f'worker {id}', total))
 
 
 @gen.coroutine
@@ -74,7 +74,7 @@ def run(loop):
     responses = yield [
         worker_task(idx) for idx in range(NBR_WORKERS)
     ] + [requestor(client)]
-    print('responses: {}'.format(responses))
+    print(f'responses: {responses}')
 
 
 def main():

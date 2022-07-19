@@ -39,8 +39,6 @@ def main():
             kvmsg = KVMsg.recv(snapshot)
         except:
             raise
-            return          # Interrupted
-
         if kvmsg.key == b"KTHXBAI":
             sequence = kvmsg.sequence
             print("I: Received snapshot=%d" % sequence)

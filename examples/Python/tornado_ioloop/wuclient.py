@@ -38,7 +38,7 @@ async def run_client(context, zip_filter):
     for update_nbr in range(5):
         string = await socket.recv()
         string = string.decode('utf-8')
-        print('I: received -- string: "{}"'.format(string))
+        print(f'I: received -- string: "{string}"')
         zipcode, temperature, relhumidity = string.split()
         total_temp += int(temperature)
     print("Average temperature for zipcode '%s' was %dF" % (

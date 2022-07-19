@@ -20,7 +20,7 @@ Ctx = Context()
 @gen.coroutine
 def func1(arg1):
     # Launch pool of worker threads
-    print('(func1) starting.  arg1: {}'.format(arg1))
+    print(f'(func1) starting.  arg1: {arg1}')
     result = arg1 * 3
     raise gen.Return(result)
 
@@ -28,18 +28,18 @@ def func1(arg1):
 @gen.coroutine
 def run1(arg1):
     # Launch pool of worker threads
-    print('(run1) starting.  arg1: {}'.format(arg1))
+    print(f'(run1) starting.  arg1: {arg1}')
     result = yield func1(arg1)
-    print('(run1) result: {}'.format(result))
+    print(f'(run1) result: {result}')
     raise gen.Return('nothing')
 
 
 @gen.coroutine
 def run2(arg1, loop):
     # Launch pool of worker threads
-    print('(run2) starting.  arg1: {}'.format(arg1))
+    print(f'(run2) starting.  arg1: {arg1}')
     result = yield func1(arg1)
-    print('(run2) result: {}'.format(result))
+    print(f'(run2) result: {result}')
     # Stop the I/O loop.  The first callback that does this stops the loop.
     loop.stop()
 

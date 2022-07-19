@@ -43,16 +43,16 @@ class Client(object):
         socket = self.context.socket(zmq.REQ)
         identity = u'client-%d' % self.id
         socket.connect(FRONTEND_ADDR)
-        print('Client %s started' % (identity))
+        print(f'Client {identity} started')
         reqs = 0
         while True:
             reqs = reqs + 1
-            msg = 'request # {}.{}'.format(self.id, reqs)
+            msg = f'request # {self.id}.{reqs}'
             msg = msg.encode('utf-8')
             yield socket.send(msg)
-            print('Client {} sent request: {}'.format(self.id, reqs))
+            print(f'Client {self.id} sent request: {reqs}')
             msg = yield socket.recv()
-            print('Client %s received: %s' % (identity, msg))
+            print(f'Client {identity} received: {msg}')
             yield gen.sleep(1)
         #socket.close()
         #context.term()
@@ -79,7 +79,7 @@ class Server(object):
             #ident = 'worker {}'.format(idx, self.context)
             worker = Worker(self.context, idx)
             self.loop.add_callback(worker.run_worker)
-            printdbg('(Server.run) started worker {}'.format(idx))
+            printdbg(f'(Server.run) started worker {idx}')
         yield gen.sleep(0.1)
         # Start up the clients.
         clients = [Client(self.context, idx) for idx in range(3)]
@@ -100,10 +100,10 @@ class Worker(object):
     def run_worker(self):
         worker = self.context.socket(zmq.DEALER)
         worker.connect(BACKEND_ADDR)
-        print('Worker {} started'.format(self.idx))
+        print(f'Worker {self.idx} started')
         while True:
             ident, part2, msg = yield worker.recv_multipart()
-            print('Worker %s received %s from %s' % (self.idx, msg, ident))
+            print(f'Worker {self.idx} received {msg} from {ident}')
             yield gen.sleep(0.5)
             yield worker.send_multipart([ident, part2, msg])
         worker.close()
@@ -120,16 +120,14 @@ def run_proxy(socket_from, socket_to):
         events = dict(events)
         if socket_from in events:
             msg = yield socket_from.recv_multipart()
-            printdbg('(run_proxy) received from frontend -- msg: {}'.format(
-                msg))
+            printdbg(f'(run_proxy) received from frontend -- msg: {msg}')
             yield socket_to.send_multipart(msg)
-            printdbg('(run_proxy) sent to backend -- msg: {}'.format(msg))
+            printdbg(f'(run_proxy) sent to backend -- msg: {msg}')
         elif socket_to in events:
             msg = yield socket_to.recv_multipart()
-            printdbg('(run_proxy) received from backend -- msg: {}'.format(
-                msg))
+            printdbg(f'(run_proxy) received from backend -- msg: {msg}')
             yield socket_from.send_multipart(msg)
-            printdbg('(run_proxy) sent to frontend -- msg: {}'.format(msg))
+            printdbg(f'(run_proxy) sent to frontend -- msg: {msg}')
 
 
 @gen.coroutine

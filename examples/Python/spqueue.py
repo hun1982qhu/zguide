@@ -27,11 +27,7 @@ poll_both.register(backend, zmq.POLLIN)
 workers = []
 
 while True:
-    if workers:
-        socks = dict(poll_both.poll())
-    else:
-        socks = dict(poll_workers.poll())
-
+    socks = dict(poll_both.poll()) if workers else dict(poll_workers.poll())
     # Handle worker activity on backend
     if socks.get(backend) == zmq.POLLIN:
         # Use worker address for LRU routing

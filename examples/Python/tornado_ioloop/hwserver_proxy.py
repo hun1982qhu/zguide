@@ -45,14 +45,14 @@ def run_proxy(socket_from, socket_to):
         events = dict(events)
         if socket_from in events:
             msg = yield socket_from.recv_multipart()
-            print('(run_proxy) received from frontend -- msg: {}'.format(msg))
+            print(f'(run_proxy) received from frontend -- msg: {msg}')
             yield socket_to.send_multipart(msg)
-            print('(run_proxy) sent to backend -- msg: {}'.format(msg))
+            print(f'(run_proxy) sent to backend -- msg: {msg}')
         elif socket_to in events:
             msg = yield socket_to.recv_multipart()
-            print('(run_proxy) received from backend -- msg: {}'.format(msg))
+            print(f'(run_proxy) received from backend -- msg: {msg}')
             yield socket_from.send_multipart(msg)
-            print('(run_proxy) sent to frontend -- msg: {}'.format(msg))
+            print(f'(run_proxy) sent to frontend -- msg: {msg}')
 
 
 @gen.coroutine
@@ -66,16 +66,16 @@ def run_worker():
     while True:
         #  Wait for next request from client
         part1, part2, message = yield socket.recv_multipart()
-        print("(run_worker) received: {}".format(message))
+        print(f"(run_worker) received: {message}")
         #  Do some 'work'
         yield gen.sleep(1)
         #  Send reply back to client
         message = message.decode('utf-8')
-        message = '{}, world'.format(message)
+        message = f'{message}, world'
         message = message.encode('utf-8')
-        print("(run_worker) sending: {}".format(message))
+        print(f"(run_worker) sending: {message}")
         yield socket.send_multipart([part1, part2, message])
-        print("(run_worker) sent: {}".format(message))
+        print(f"(run_worker) sent: {message}")
 
 
 @gen.coroutine

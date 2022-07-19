@@ -35,18 +35,19 @@ def run_server():
         request = yield from server.recv()
         cycles += 1
         # Simulate various problems, after a few cycles
-        if cycles > 3 and randint(0, 3) == 0:
-            print("I: Simulating a crash")
-            server.unbind(SERVER_ADDR)
-            # Delay for a bit, else we get "Address already in use" error.
-            # Note that to really simulate a crash, we should probably kill
-            # this process and start another.
-            yield from asyncio.sleep(2)
-            break
-        elif cycles > 3 and randint(0, 3) == 0:
-            print("I: Simulating CPU overload")
-            yield from asyncio.sleep(2)
-        print("I: Normal request (%s)" % request)
+        if cycles > 3:
+            if randint(0, 3) == 0:
+                print("I: Simulating a crash")
+                server.unbind(SERVER_ADDR)
+                # Delay for a bit, else we get "Address already in use" error.
+                # Note that to really simulate a crash, we should probably kill
+                # this process and start another.
+                yield from asyncio.sleep(2)
+                break
+            elif randint(0, 3) == 0:
+                print("I: Simulating CPU overload")
+                yield from asyncio.sleep(2)
+        print(f"I: Normal request ({request})")
         yield from asyncio.sleep(1)       # Do some heavy work
         yield from server.send(request)
     return (context, server)

@@ -12,8 +12,8 @@ def main():
     verbose = '-v' in sys.argv
     client = MajorDomoClient("tcp://localhost:5555", verbose)
     count = 0
+    request = b"Hello world"
     while count < 100000:
-        request = b"Hello world"
         try:
             reply = client.send(b"echo", request)
         except KeyboardInterrupt:

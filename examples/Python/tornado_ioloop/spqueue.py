@@ -44,10 +44,7 @@ def run_queue():
     workers = []
 
     while True:
-        if workers:
-            socks = yield poll_both.poll()
-        else:
-            socks = yield poll_workers.poll()
+        socks = (yield poll_both.poll()) if workers else (yield poll_workers.poll())
         socks = dict(socks)
 
         # Handle worker activity on backend
@@ -56,7 +53,7 @@ def run_queue():
             msg = yield backend.recv_multipart()
             if not msg:
                 break
-            print('I: received msg: {}'.format(msg))
+            print(f'I: received msg: {msg}')
             address = msg[0]
             workers.append(address)
 
@@ -65,17 +62,17 @@ def run_queue():
 
             # Forward message to client if it's not a READY
             if reply[0] != LRU_READY:
-                print('I: sending -- reply: {}'.format(reply))
+                print(f'I: sending -- reply: {reply}')
                 yield frontend.send_multipart(reply)
             else:
-                print('I: received ready -- address: {}'.format(address))
+                print(f'I: received ready -- address: {address}')
 
         if socks.get(frontend) == zmq.POLLIN:
             #  Get client request, route to first available worker
             msg = yield frontend.recv_multipart()
             worker = workers.pop(0)
             request = [worker, b''] + msg
-            print('I: sending -- worker: {}  msg: {}'.format(worker, msg))
+            print(f'I: sending -- worker: {worker}  msg: {msg}')
             yield backend.send_multipart(request)
 
 

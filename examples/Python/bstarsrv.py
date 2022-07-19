@@ -60,8 +60,7 @@ fsm_states = {
 def run_fsm(fsm):
     # There are some transitional states we do not want to handle
     state_dict = fsm_states.get(fsm.state, {})
-    res = state_dict.get(fsm.event)
-    if res:
+    if res := state_dict.get(fsm.event):
         msg, state = res
     else:
         return
@@ -114,8 +113,7 @@ def main():
 
     while True:
         time_left = send_state_at - int(time.time() * 1000)
-        if time_left < 0:
-            time_left = 0
+        time_left = max(time_left, 0)
         socks = dict(poller.poll(time_left))
         if socks.get(frontend) == zmq.POLLIN:
             msg = frontend.recv_multipart()

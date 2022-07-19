@@ -225,7 +225,7 @@ class MajorDomoBroker(object):
     def service_internal(self, service, msg):
         """Handle internal service according to 8/MMI specification"""
         returncode = b"501"
-        if b"mmi.service" == service:
+        if service == b"mmi.service":
             name = msg[-1]
             returncode = b"200" if name in self.services else b"404"
         msg[-1] = returncode

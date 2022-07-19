@@ -22,15 +22,15 @@ from zhelpers import zpipe
 
 TITANIC_DIR = ".titanic"
 
-def request_filename (suuid):
+def request_filename(suuid):
     """Returns freshly allocated request filename for given UUID str"""
-    return os.path.join(TITANIC_DIR, "%s.req" % suuid)
+    return os.path.join(TITANIC_DIR, f"{suuid}.req")
 
 #
 
-def reply_filename (suuid):
+def reply_filename(suuid):
     """Returns freshly allocated reply filename for given UUID str"""
-    return os.path.join(TITANIC_DIR, "%s.rep" % suuid)
+    return os.path.join(TITANIC_DIR, f"{suuid}.rep")
 
 # ---------------------------------------------------------------------
 # Titanic request service
@@ -68,7 +68,7 @@ def titanic_request (pipe):
 # ---------------------------------------------------------------------
 # Titanic reply service
 
-def titanic_reply ():
+def titanic_reply():
     worker = MajorDomoWorker("tcp://localhost:5555", b"titanic.reply")
     reply = None
 
@@ -85,10 +85,7 @@ def titanic_reply ():
                 reply = pickle.load(f)
             reply = [b"200"] + reply
         else:
-            if os.path.exists(req_filename):
-                reply = [b"300"] # pending
-            else:
-                reply = [b"400"] # unknown
+            reply = [b"300"] if os.path.exists(req_filename) else [b"400"]
 
 
 # ---------------------------------------------------------------------
@@ -130,11 +127,8 @@ def service_success(client, suuid):
     # Use MMI protocol to check if service is available
     mmi_request = [service]
     mmi_reply = client.send(b"mmi.service", mmi_request)
-    service_ok = mmi_reply and mmi_reply[0] == b"200"
-
-    if service_ok:
-        reply = client.send(service, request)
-        if reply:
+    if service_ok := mmi_reply and mmi_reply[0] == b"200":
+        if reply := client.send(service, request):
             filename = reply_filename (suuid)
             with open(filename, "wb") as f:
                 pickle.dump(reply, f)
@@ -195,7 +189,7 @@ def main():
                 # UUID is prefixed with '-' if still waiting
                 if entry[0] == '-':
                     suuid = entry[1:].rstrip() # rstrip '\n' etc.
-                    print ("I: processing request %s" % suuid)
+                    print(f"I: processing request {suuid}")
                     if service_success(client, suuid):
                         # mark queue entry as processed
                         here = f.tell()

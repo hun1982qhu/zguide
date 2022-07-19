@@ -13,7 +13,7 @@ import zmq
 
 
 def main(myself, others):
-    print("Hello, I am %s" % myself)
+    print(f"Hello, I am {myself}")
 
     context = zmq.Context()
 
@@ -24,25 +24,24 @@ def main(myself, others):
     statefe = context.socket(zmq.SUB)
     statefe.setsockopt(zmq.SUBSCRIBE, b'')
 
-    bind_address = u"ipc://%s-state.ipc" % myself
+    bind_address = f"ipc://{myself}-state.ipc"
     statebe.bind(bind_address)
 
     for other in others:
-        statefe.connect(u"ipc://%s-state.ipc" % other)
+        statefe.connect(f"ipc://{other}-state.ipc")
         time.sleep(1.0)
 
     poller = zmq.Poller()
     poller.register(statefe, zmq.POLLIN)
 
     while True:
-
 ########## Solution with poll() ##########
         socks = dict(poller.poll(1000))
 
         # Handle incoming status message
         if socks.get(statefe) == zmq.POLLIN:
             msg = statefe.recv_multipart()
-            print('%s Received: %s' % (myself, msg))
+            print(f'{myself} Received: {msg}')
 
         else:
             # Send our address and a random value
