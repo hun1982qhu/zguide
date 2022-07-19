@@ -12,9 +12,7 @@ def main():
     verbose = '-v' in sys.argv
     client = MajorDomoClient("tcp://localhost:5555", verbose)
     request = b"echo"
-    reply = client.send(b"mmi.service", request)
-
-    if reply:
+    if reply := client.send(b"mmi.service", request):
         replycode = reply[0]
         print ("Lookup echo service:", replycode)
     else:

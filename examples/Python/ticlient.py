@@ -10,13 +10,12 @@ import time
 
 from mdcliapi import MajorDomoClient
 
-def service_call (session, service, request):
+def service_call(session, service, request):
     """Calls a TSP service
 
     Returns reponse if successful (status code 200 OK), else None
     """
-    reply = session.send(service, request)
-    if reply:
+    if reply := session.send(service, request):
         status = reply.pop(0)
         if status == b"200":
             return reply
@@ -27,7 +26,7 @@ def service_call (session, service, request):
             print ("E: server fatal error 500, aborting")
             sys.exit (1)
     else:
-        sys.exit (0);    #  Interrupted or failed
+        sys.exit (0)
 
 def main():
     verbose = '-v' in sys.argv
@@ -47,9 +46,7 @@ def main():
     while True:
         time.sleep (.1)
         request = [uuid]
-        reply = service_call (session, b"titanic.reply", request)
-
-        if reply:
+        if reply := service_call(session, b"titanic.reply", request):
             reply_string = reply[-1]
             print ("I: reply:", reply_string)
 

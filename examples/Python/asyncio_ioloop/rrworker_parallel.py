@@ -29,12 +29,12 @@ def run_worker(context, worker_id):
     socket.connect("tcp://localhost:5560")
     while True:
         message = yield from socket.recv()
-        print("Worker {} received request: {}".format(worker_id, message))
+        print(f"Worker {worker_id} received request: {message}")
         message = message.decode('utf-8')
-        reply = '{}, World from worker {}'.format(message, worker_id)
+        reply = f'{message}, World from worker {worker_id}'
         reply = reply.encode('utf-8')
         yield from socket.send(reply)
-        print("Worker {} sent reply: {}".format(worker_id, reply))
+        print(f"Worker {worker_id} sent reply: {reply}")
 
 
 def run(loop, ident, num_workers):

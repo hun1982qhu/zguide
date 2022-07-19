@@ -42,7 +42,7 @@ def run_worker(ident):
     # Socket to talk to dispatcher
     socket = Ctx.socket(zmq.REP)
     socket.connect(Url_worker)
-    printdbg('(worker_routine) {} started'.format(ident))
+    printdbg(f'(worker_routine) {ident} started')
     while True:
         printdbg('(worker_routine) waiting for request')
         message = yield from socket.recv()
@@ -52,9 +52,9 @@ def run_worker(ident):
         # Do some 'work'
         yield from asyncio.sleep(1)
         # Send reply back to client
-        message = '{} world, from {}'.format(message, ident).encode('utf-8')
+        message = f'{message} world, from {ident}'.encode('utf-8')
         yield from socket.send(message)
-        printdbg('(worker_routine) sent message: {}'.format(message))
+        printdbg(f'(worker_routine) sent message: {message}')
 
 
 def run_server(loop):
@@ -68,7 +68,7 @@ def run_server(loop):
     # Start the workers
     tasks = []
     for idx in range(5):
-        ident = 'worker {}'.format(idx)
+        ident = f'worker {idx}'
         task = asyncio.ensure_future(run_worker(ident))
         tasks.append(task)
     poller = Poller()
@@ -80,22 +80,18 @@ def run_server(loop):
         events = dict(events)
         if clients in events:
             message = yield from clients.recv_multipart()
-            printdbg('(run) received from client message_parts: {}'.format(
-                message))
+            printdbg(f'(run) received from client message_parts: {message}')
             client, empty, message = message[:3]
-            printdbg('(run) received from client message: {}'.format(
-                message))
-            printdbg('(run) sending message to workers: {}'.format(message))
+            printdbg(f'(run) received from client message: {message}')
+            printdbg(f'(run) sending message to workers: {message}')
             yield from workers.send_multipart([client, b'', message])
         elif workers in events:
             message = yield from workers.recv_multipart()
-            printdbg('(run) received from worker message_parts: {}'.format(
-                message))
+            printdbg(f'(run) received from worker message_parts: {message}')
             client, empty, message = message[:3]
-            printdbg('(run) received from worker message: {}'.format(
-                message))
+            printdbg(f'(run) received from worker message: {message}')
             yield from clients.send_multipart([client, b'', message])
-            printdbg('(run) sent message to clients: {}'.format(message))
+            printdbg(f'(run) sent message to clients: {message}')
 
 
 @asyncio.coroutine

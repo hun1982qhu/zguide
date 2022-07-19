@@ -27,8 +27,7 @@ def main():
 
     while True:
         timeout = ping_at - time.time()
-        if timeout < 0:
-            timeout = 0
+        timeout = max(timeout, 0)
         try:
             events = dict(poller.poll(1000* timeout))
         except KeyboardInterrupt:

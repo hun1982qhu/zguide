@@ -31,10 +31,10 @@ def client_task(name, i):
     """Request-reply client using REQ socket"""
     ctx = zmq.Context()
     client = ctx.socket(zmq.REQ)
-    client.identity = (u"Client-%s-%s" % (name, i)).encode('ascii')
-    client.connect("ipc://%s-localfe.ipc" % name)
+    client.identity = f"Client-{name}-{i}".encode('ascii')
+    client.connect(f"ipc://{name}-localfe.ipc")
     monitor = ctx.socket(zmq.PUSH)
-    monitor.connect("ipc://%s-monitor.ipc" % name)
+    monitor.connect(f"ipc://{name}-monitor.ipc")
 
     poller = zmq.Poller()
     poller.register(client, zmq.POLLIN)
@@ -53,18 +53,18 @@ def client_task(name, i):
 
             if events:
                 reply = client.recv_string()
-                assert reply == task_id, "expected %s, got %s" % (task_id, reply)
+                assert reply == task_id, f"expected {task_id}, got {reply}"
                 monitor.send_string(reply)
             else:
-                monitor.send_string(u"E: CLIENT EXIT - lost task %s" % task_id)
+                monitor.send_string(f"E: CLIENT EXIT - lost task {task_id}")
                 return
 
 def worker_task(name, i):
     """Worker using REQ socket to do LRU routing"""
     ctx = zmq.Context()
     worker = ctx.socket(zmq.REQ)
-    worker.identity = ("Worker-%s-%s" % (name, i)).encode('ascii')
-    worker.connect("ipc://%s-localbe.ipc" % name)
+    worker.identity = f"Worker-{name}-{i}".encode('ascii')
+    worker.connect(f"ipc://{name}-localbe.ipc")
 
     # Tell broker we're ready for work
     worker.send(b"READY")
@@ -81,7 +81,7 @@ def worker_task(name, i):
         worker.send_multipart(msg)
 
 def main(myself, peers):
-    print("I: preparing broker at %s..." % myself)
+    print(f"I: preparing broker at {myself}...")
 
     # Prepare our context and sockets
     ctx = zmq.Context()
@@ -89,11 +89,11 @@ def main(myself, peers):
     # Bind cloud frontend to endpoint
     cloudfe = ctx.socket(zmq.ROUTER)
     cloudfe.setsockopt(zmq.IDENTITY, myself)
-    cloudfe.bind("ipc://%s-cloud.ipc" % myself)
+    cloudfe.bind(f"ipc://{myself}-cloud.ipc")
 
     # Bind state backend / publisher to endpoint
     statebe = ctx.socket(zmq.PUB)
-    statebe.bind("ipc://%s-state.ipc" % myself)
+    statebe.bind(f"ipc://{myself}-state.ipc")
 
     # Connect cloud and state backends to all peers
     cloudbe = ctx.socket(zmq.ROUTER)
@@ -102,20 +102,20 @@ def main(myself, peers):
     cloudbe.setsockopt(zmq.IDENTITY, myself)
 
     for peer in peers:
-        print("I: connecting to cloud frontend at %s" % peer)
-        cloudbe.connect("ipc://%s-cloud.ipc" % peer)
-        print("I: connecting to state backend at %s" % peer)
-        statefe.connect("ipc://%s-state.ipc" % peer)
+        print(f"I: connecting to cloud frontend at {peer}")
+        cloudbe.connect(f"ipc://{peer}-cloud.ipc")
+        print(f"I: connecting to state backend at {peer}")
+        statefe.connect(f"ipc://{peer}-state.ipc")
 
     # Prepare local frontend and backend
     localfe = ctx.socket(zmq.ROUTER)
-    localfe.bind("ipc://%s-localfe.ipc" % myself)
+    localfe.bind(f"ipc://{myself}-localfe.ipc")
     localbe = ctx.socket(zmq.ROUTER)
-    localbe.bind("ipc://%s-localbe.ipc" % myself)
+    localbe.bind(f"ipc://{myself}-localbe.ipc")
 
     # Prepare monitor socket
     monitor = ctx.socket(zmq.PULL)
-    monitor.bind("ipc://%s-monitor.ipc" % myself)
+    monitor.bind(f"ipc://{myself}-monitor.ipc")
 
     # Get user to tell us when we can start...
     # raw_input("Press Enter when all brokers are started: ")

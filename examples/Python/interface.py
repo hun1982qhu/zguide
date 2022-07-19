@@ -20,7 +20,7 @@ def pipe(ctx):
     """create an inproc PAIR pipe"""
     a = ctx.socket(zmq.PAIR)
     b = ctx.socket(zmq.PAIR)
-    url = "inproc://%s" % uuid.uuid1()
+    url = f"inproc://{uuid.uuid1()}"
     a.bind(url)
     b.connect(url)
     return a, b
@@ -126,7 +126,7 @@ class InterfaceAgent(object):
 
     def control_message(self, event):
         """Here we handle the different control messages from the frontend."""
-        print("control message: %s"%event)
+        print(f"control message: {event}")
 
     def handle_beacon(self, fd, event):
         uuid = self.udp.recv(UUID_BYTES)
@@ -140,6 +140,6 @@ class InterfaceAgent(object):
         now = time.time()
         for peer in list(self.peers.values()):
             if peer.expires_at < now:
-                print("reaping %s" % peer.uuid, peer.expires_at, now)
+                print(f"reaping {peer.uuid}", peer.expires_at, now)
                 self.peers.pop(peer.uuid)
                 self.pipe.send_multipart([b'LEFT', peer.uuid])

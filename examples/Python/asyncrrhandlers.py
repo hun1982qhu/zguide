@@ -35,29 +35,27 @@ PROCESSING_TIME = 5
 class Client(threading.Thread):
     def __init__(self, identity):
         threading.Thread.__init__(self)
-        self.identity = '{}{}'.format('id_', identity)
+        self.identity = f'id_{identity}'
 
     def run(self):
         context = zmq.Context()
         socket = context.socket(zmq.DEALER)
         socket.setsockopt(zmq.IDENTITY, self.identity)
         socket.connect('tcp://localhost:5570')
-        print 'Client %s started\n' % self.identity
+        context = zmq.Context()
         poll = zmq.Poller()
         poll.register(socket, zmq.POLLIN)
 
-        socket.send('[request from client %s]' % self.identity)
-        print 'Req from client %s sent.\n' % self.identity
-
+        socket.send(f'[request from client {self.identity}]')
+        context = zmq.Context()
         received_reply = False
         while not received_reply:
             sockets = dict(poll.poll(1000))
-            if socket in sockets:
-                if sockets[socket] == zmq.POLLIN:
-                    msg = socket.recv()
-                    print 'Client %s received reply: %s\n' % (self.identity, msg)
-                    del msg
-                    received_reply = True
+            if socket in sockets and sockets[socket] == zmq.POLLIN:
+                msg = socket.recv()
+                msg = socket.recv()
+                del msg
+                received_reply = True
 
         socket.close()
         context.term()
@@ -88,22 +86,19 @@ class Server(threading.Thread):
 
         while not self.stopped():
             sockets = dict(poll.poll(1000))
-            if frontend in sockets:
-                if sockets[frontend] == zmq.POLLIN:
-                    _id = frontend.recv()
-                    msg = frontend.recv()
-                    print 'Server received %s\n' % msg
+            if frontend in sockets and sockets[frontend] == zmq.POLLIN:
+                _id = frontend.recv()
+                msg = frontend.recv()
+                _id = frontend.recv()
+                handler = RequestHandler(context, _id, msg)
+                handler.start()
 
-                    handler = RequestHandler(context, _id, msg)
-                    handler.start()
-
-            if backend in sockets:
-                if sockets[backend] == zmq.POLLIN:
-                    _id = backend.recv()
-                    msg = backend.recv()
-                    print 'Server sending to frontend %s\n' % msg
-                    frontend.send(_id, zmq.SNDMORE)
-                    frontend.send(msg)
+            if backend in sockets and sockets[backend] == zmq.POLLIN:
+                _id = backend.recv()
+                msg = backend.recv()
+                _id = backend.recv()
+                frontend.send(_id, zmq.SNDMORE)
+                frontend.send(msg)
 
         frontend.close()
         backend.close()

@@ -101,7 +101,7 @@ def server_task(ctx):
         # Send resulting chunk to client
         yield router.send_multipart([identity, data])
         count += 1
-    message = 'server sent {} chunks, {} bytes'.format(count, total)
+    message = f'server sent {count} chunks, {total} bytes'
     print('(server) finished')
     raise gen.Return(('server', message))
 
@@ -112,7 +112,7 @@ def monitor(pipe):
     message = None
     try:
         mesg = yield pipe.recv()
-        message = 'monitor received: {}'.format(mesg)
+        message = f'monitor received: {mesg}'
         print(message)
     except KeyboardInterrupt:
         pass
@@ -134,7 +134,7 @@ def run(loop):
         server_task(ctx),
         monitor(a),
     ]
-    print('responses: {}'.format(responses))
+    print(f'responses: {responses}')
     del a, b
     print('(run) finished')
 

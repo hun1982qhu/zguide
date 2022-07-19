@@ -37,11 +37,11 @@ def run_broker(context):
         socks = dict(socks)
         if socks.get(frontend) == zmq.POLLIN:
             message = yield frontend.recv_multipart()
-            print('received from frontend: {}'.format(message))
+            print(f'received from frontend: {message}')
             yield backend.send_multipart(message)
         if socks.get(backend) == zmq.POLLIN:
             message = yield backend.recv_multipart()
-            print('received from backend: {}'.format(message))
+            print(f'received from backend: {message}')
             yield frontend.send_multipart(message)
 
 

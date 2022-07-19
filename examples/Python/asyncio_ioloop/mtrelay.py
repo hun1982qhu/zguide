@@ -33,7 +33,7 @@ def step1(loop, context):
     sender.connect("inproc://step2")
     msg = b'message from step1'
     yield from sender.send(msg)
-    print('step1 -- sent msg: {}'.format(msg))
+    print(f'step1 -- sent msg: {msg}')
 
 
 @asyncio.coroutine
@@ -46,13 +46,13 @@ def step2(loop, context):
     # Wait for signal
     printdbg('(step2) waiting for signal')
     msg = yield from receiver.recv()
-    print('step2 -- received msg: {}'.format(msg))
+    print(f'step2 -- received msg: {msg}')
     # Signal downstream to step 3
     sender = context.socket(zmq.PAIR)
     sender.connect("inproc://step3")
     msg = b'message from step2'
     yield from sender.send(msg)
-    print('step2 -- sent msg: {}'.format(msg))
+    print(f'step2 -- sent msg: {msg}')
 
 
 @asyncio.coroutine
@@ -62,7 +62,7 @@ def step3(loop, context):
     receiver = context.socket(zmq.PAIR)
     receiver.bind("inproc://step3")
     msg = yield from receiver.recv()
-    print("step 3 -- test successful!  msg: {}".format(msg))
+    print(f"step 3 -- test successful!  msg: {msg}")
 
 
 def run(loop):

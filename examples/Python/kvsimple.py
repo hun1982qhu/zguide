@@ -45,9 +45,9 @@ class KVMsg(object):
     def recv(cls, socket):
         """Reads key-value message from socket, returns new kvmsg instance."""
         key, seq_s, body = socket.recv_multipart()
-        key = key if key else None
+        key = key or None
         seq = struct.unpack('!l',seq_s)[0]
-        body = body if body else None
+        body = body or None
         return cls(seq, key=key, body=body)
 
     def dump(self):

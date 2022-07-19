@@ -58,10 +58,7 @@ def publisher(pipe):
         try:
             signal = pipe.recv(zmq.DONTWAIT)
         except zmq.ZMQError as e:
-            if e.errno == zmq.EAGAIN:
-                # nothing to recv
-                pass
-            else:
+            if e.errno != zmq.EAGAIN:
                 raise
         else:
             # received break message

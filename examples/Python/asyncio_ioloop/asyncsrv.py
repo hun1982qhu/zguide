@@ -41,23 +41,22 @@ class Client(object):
         socket = self.context.socket(zmq.REQ)
         identity = u'client-%d' % self.id
         socket.connect(FRONTEND_ADDR)
-        print('Client %s started' % (identity))
+        print(f'Client {identity} started')
         reqs = 0
         while True:
             reqs = reqs + 1
-            msg = 'request # {}.{}'.format(self.id, reqs)
+            msg = f'request # {self.id}.{reqs}'
             msg = msg.encode('utf-8')
-            printdbg('Client {} before sending request: {}'.format(
-                self.id, reqs))
+            printdbg(f'Client {self.id} before sending request: {reqs}')
             yield from socket.send(msg)
-            print('Client {} sent request: {}'.format(self.id, reqs))
+            print(f'Client {self.id} sent request: {reqs}')
             msg = yield from socket.recv()
-            print('Client %s received: %s' % (identity, msg))
+            print(f'Client {identity} received: {msg}')
             yield from asyncio.sleep(1)
-            printdbg('(run_client) client {} after sleep'.format(self.id))
+            printdbg(f'(run_client) client {self.id} after sleep')
         #socket.close()
         #context.term()
-        printdbg('(run_client) client {} exiting'.format(self.id))
+        printdbg(f'(run_client) client {self.id} exiting')
 
 
 class Server(object):
@@ -68,27 +67,26 @@ class Server(object):
 
     def run_server(self):
         printdbg('(Server.run) starting')
-        tasks = []
         frontend = self.context.socket(zmq.ROUTER)
         frontend.bind(FRONTEND_ADDR)
         backend = self.context.socket(zmq.DEALER)
         backend.bind(BACKEND_ADDR)
         task = asyncio.ensure_future(run_proxy(frontend, backend))
-        tasks.append(task)
+        tasks = [task]
         printdbg('(Server.run) started proxy')
         # Start up the workers.
         for idx in range(5):
             worker = Worker(self.context, idx)
             task = asyncio.ensure_future(worker.run_worker())
             tasks.append(task)
-            printdbg('(Server.run) started worker {}'.format(idx))
+            printdbg(f'(Server.run) started worker {idx}')
         # Start up the clients.
         clients = [Client(self.context, idx) for idx in range(3)]
         tasks += [
             asyncio.ensure_future(client.run_client()) for
             client in clients
         ]
-        printdbg('(run_server) tasks: {}'.format(tasks))
+        printdbg(f'(run_server) tasks: {tasks}')
         printdbg('(Server.run) after starting clients')
         #frontend.close()
         #backend.close()
@@ -106,10 +104,10 @@ class Worker(object):
     def run_worker(self):
         worker = self.context.socket(zmq.DEALER)
         worker.connect(BACKEND_ADDR)
-        print('Worker {} started'.format(self.idx))
+        print(f'Worker {self.idx} started')
         while True:
             ident, part2, msg = yield from worker.recv_multipart()
-            print('Worker %s received %s from %s' % (self.idx, msg, ident))
+            print(f'Worker {self.idx} received {msg} from {ident}')
             yield from asyncio.sleep(0.5)
             yield from worker.send_multipart([ident, part2, msg])
         worker.close()
@@ -126,16 +124,14 @@ def run_proxy(socket_from, socket_to):
         events = dict(events)
         if socket_from in events:
             msg = yield from socket_from.recv_multipart()
-            printdbg('(run_proxy) received from frontend -- msg: {}'.format(
-                msg))
+            printdbg(f'(run_proxy) received from frontend -- msg: {msg}')
             yield from socket_to.send_multipart(msg)
-            printdbg('(run_proxy) sent to backend -- msg: {}'.format(msg))
+            printdbg(f'(run_proxy) sent to backend -- msg: {msg}')
         elif socket_to in events:
             msg = yield from socket_to.recv_multipart()
-            printdbg('(run_proxy) received from backend -- msg: {}'.format(
-                msg))
+            printdbg(f'(run_proxy) received from backend -- msg: {msg}')
             yield from socket_from.send_multipart(msg)
-            printdbg('(run_proxy) sent to frontend -- msg: {}'.format(msg))
+            printdbg(f'(run_proxy) sent to frontend -- msg: {msg}')
 
 
 def run(loop):

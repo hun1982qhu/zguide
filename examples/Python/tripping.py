@@ -13,7 +13,7 @@ import zmq
 
 from zhelpers import zpipe
 
-def client_task (ctx, pipe):
+def client_task(ctx, pipe):
     client = ctx.socket(zmq.DEALER)
     client.identity = b'C'
     client.connect("tcp://localhost:5555")
@@ -24,16 +24,16 @@ def client_task (ctx, pipe):
     print ("Synchronous round-trip test...")
     start = time.time()
     requests = 10000
-    for r in range(requests):
+    for _ in range(requests):
         client.send(b"hello")
         client.recv()
     print (" %d calls/second" % (requests / (time.time()-start)))
 
     print ("Asynchronous round-trip test...")
     start = time.time()
-    for r in range(requests):
+    for _ in range(requests):
         client.send(b"hello")
-    for r in range(requests):
+    for _ in range(requests):
         client.recv()
     print (" %d calls/second" % (requests / (time.time()-start)))
 

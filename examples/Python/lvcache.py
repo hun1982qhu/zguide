@@ -48,7 +48,7 @@ def main():
             if event[0] == b'\x01':
                 topic = event[1:]
                 if topic in cache:
-                    print ("Sending cached topic %s" % topic)
+                    print(f"Sending cached topic {topic}")
                     backend.send_multipart([ topic, cache[topic] ])
 
 if __name__ == '__main__':

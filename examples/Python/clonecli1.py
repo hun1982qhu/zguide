@@ -30,7 +30,6 @@ def main():
             break # Interrupted
         kvmsg.store(kvmap)
         sequence += 1
-    print "Interrupted\n%d messages in" % sequence
 
 
 if __name__ == '__main__':

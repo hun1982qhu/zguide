@@ -142,26 +142,18 @@ class CloneServer(object):
             self.sequence += 1
             kvmsg.sequence = self.sequence
             kvmsg.send(self.publisher)
-            ttl = float(kvmsg.get(b'ttl', 0))
-            if ttl:
+            if ttl := float(kvmsg.get(b'ttl', 0)):
                 kvmsg[b'ttl'] = b'%f' % (time.time() + ttl)
             kvmsg.store(self.kvmap)
             logging.info("I: publishing update=%d", self.sequence)
-        else:
-            # If we already got message from master, drop it, else
-            # hold on pending list
-            if not self.was_pending(kvmsg):
-                self.pending.append(kvmsg)
+        elif not self.was_pending(kvmsg):
+            self.pending.append(kvmsg)
 
     def was_pending(self, kvmsg):
         """If message was already on pending list, remove and return True.
         Else return False.
         """
-        found = False
-        for idx, held in enumerate(self.pending):
-            if held.uuid == kvmsg.uuid:
-                found = True
-                break
+        found = next((True for held in self.pending if held.uuid == kvmsg.uuid), False)
         if found:
             self.pending.pop(idx)
         return found
@@ -257,9 +249,7 @@ class CloneServer(object):
 
         # Find and remove update off pending list
         kvmsg = KVMsg.from_msg(msg)
-        # update float ttl -> timestamp
-        ttl = float(kvmsg.get(b'ttl', 0))
-        if ttl:
+        if ttl := float(kvmsg.get(b'ttl', 0)):
             kvmsg[b'ttl'] = b'%f' % (time.time() + ttl)
 
         if kvmsg.key != b"HUGZ":

@@ -33,12 +33,12 @@ class WorkerQueue(object):
     def purge(self):
         """Look for & kill expired workers."""
         t = time.time()
-        expired = []
-        for address, worker in self.queue.items():
-            if t > worker.expiry:  # Worker expired
-                expired.append(address)
+        expired = [
+            address for address, worker in self.queue.items() if t > worker.expiry
+        ]
+
         for address in expired:
-            print("W: Idle worker expired: %s" % address)
+            print(f"W: Idle worker expired: {address}")
             self.queue.pop(address, None)
 
     def next(self):
@@ -64,10 +64,7 @@ workers = WorkerQueue()
 heartbeat_at = time.time() + HEARTBEAT_INTERVAL
 
 while True:
-    if len(workers.queue) > 0:
-        poller = poll_both
-    else:
-        poller = poll_workers
+    poller = poll_both if len(workers.queue) > 0 else poll_workers
     socks = dict(poller.poll(HEARTBEAT_INTERVAL * 1000))
 
     # Handle worker activity on backend
@@ -84,7 +81,7 @@ while True:
         msg = frames[1:]
         if len(msg) == 1:
             if msg[0] not in (PPP_READY, PPP_HEARTBEAT):
-                print("E: Invalid message from worker: %s" % msg)
+                print(f"E: Invalid message from worker: {msg}")
         else:
             frontend.send_multipart(msg)
 

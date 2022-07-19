@@ -35,13 +35,13 @@ def run(ident):
     socket.connect(Url)
     #  Do multiple requests, waiting each time for a response
     for request in range(10):
-        message = '{} Hello {}'.format(ident, request)
+        message = f'{ident} Hello {request}'
         message = message.encode('utf-8')
-        print("Client {} sending message: {}".format(ident, message))
+        print(f"Client {ident} sending message: {message}")
         yield from socket.send(message)
         #  Get the reply.
         message = yield from socket.recv()
-        print("Client {} received reply: {}".format(ident, message))
+        print(f"Client {ident} received reply: {message}")
     print('exiting')
     return 'nothing'
 

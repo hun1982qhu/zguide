@@ -33,8 +33,8 @@ def client_task(name, i):
     """Request-reply client using REQ socket"""
     ctx = zmq.Context()
     client = ctx.socket(zmq.REQ)
-    client.identity = (u"Client-%s-%s" % (name, i)).encode('ascii')
-    client.connect("ipc://%s-localfe.ipc" % name)
+    client.identity = f"Client-{name}-{i}".encode('ascii')
+    client.connect(f"ipc://{name}-localfe.ipc")
     while True:
         client.send(b"HELLO")
         try:
@@ -42,7 +42,7 @@ def client_task(name, i):
         except zmq.ZMQError:
             # interrupted
             return
-        tprint("Client-%s: %s" % (i, reply))
+        tprint(f"Client-{i}: {reply}")
         time.sleep(1)
 
 
@@ -50,8 +50,8 @@ def worker_task(name, i):
     """Worker using REQ socket to do LRU routing"""
     ctx = zmq.Context()
     worker = ctx.socket(zmq.REQ)
-    worker.identity = (u"Worker-%s-%s" % (name, i)).encode('ascii')
-    worker.connect("ipc://%s-localbe.ipc" % name)
+    worker.identity = f"Worker-{name}-{i}".encode('ascii')
+    worker.connect(f"ipc://{name}-localbe.ipc")
 
     # Tell broker we're ready for work
     worker.send(b"READY")
@@ -68,26 +68,23 @@ def worker_task(name, i):
         worker.send_multipart(msg)
 
 def main(myself, peers):
-    print("I: preparing broker at %s..." % myself)
+    print(f"I: preparing broker at {myself}...")
 
     # Prepare our context and sockets
     ctx = zmq.Context()
 
     # Bind cloud frontend to endpoint
     cloudfe = ctx.socket(zmq.ROUTER)
-    if not isinstance(myself, bytes):
-        ident = myself.encode('ascii')
-    else:
-        ident = myself
+    ident = myself if isinstance(myself, bytes) else myself.encode('ascii')
     cloudfe.identity = ident
-    cloudfe.bind("ipc://%s-cloud.ipc" % myself)
+    cloudfe.bind(f"ipc://{myself}-cloud.ipc")
 
     # Connect cloud backend to all peers
     cloudbe = ctx.socket(zmq.ROUTER)
     cloudbe.identity = ident
     for peer in peers:
-        tprint("I: connecting to cloud frontend at %s" % peer)
-        cloudbe.connect("ipc://%s-cloud.ipc" % peer)
+        tprint(f"I: connecting to cloud frontend at {peer}")
+        cloudbe.connect(f"ipc://{peer}-cloud.ipc")
 
 
     if not isinstance(peers[0], bytes):
@@ -95,9 +92,9 @@ def main(myself, peers):
 
     # Prepare local frontend and backend
     localfe = ctx.socket(zmq.ROUTER)
-    localfe.bind("ipc://%s-localfe.ipc" % myself)
+    localfe.bind(f"ipc://{myself}-localfe.ipc")
     localbe = ctx.socket(zmq.ROUTER)
-    localbe.bind("ipc://%s-localbe.ipc" % myself)
+    localbe.bind(f"ipc://{myself}-localbe.ipc")
 
     # Get user to tell us when we can start...
     raw_input("Press Enter when all brokers are started: ")

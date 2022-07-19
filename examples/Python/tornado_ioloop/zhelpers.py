@@ -26,13 +26,13 @@ def dump(msg_or_socket):
     else:
         msg = msg_or_socket
     print("----------------------------------------")
+    is_text = True
     for part in msg:
         print("[%03d]" % len(part), end=' ')
-        is_text = True
         try:
             print(part.decode('ascii'))
         except UnicodeDecodeError:
-            print(r"0x%s" % (binascii.hexlify(part).decode('ascii')))
+            print(f"0x{binascii.hexlify(part).decode('ascii')}")
 
 
 def set_id(zsocket):
@@ -52,7 +52,7 @@ def zpipe(ctx):
     b = ctx.socket(zmq.PAIR)
     a.linger = b.linger = 0
     a.hwm = b.hwm = 1
-    iface = "inproc://%s" % binascii.hexlify(os.urandom(8))
+    iface = f"inproc://{binascii.hexlify(os.urandom(8))}"
     a.bind(iface)
     b.connect(iface)
     return a,b

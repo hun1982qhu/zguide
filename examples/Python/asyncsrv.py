@@ -25,7 +25,7 @@ class ClientTask(threading.Thread):
         identity = u'worker-%d' % self.id
         socket.identity = identity.encode('ascii')
         socket.connect('tcp://localhost:5570')
-        print('Client %s started' % (identity))
+        print(f'Client {identity} started')
         poll = zmq.Poller()
         poll.register(socket, zmq.POLLIN)
         reqs = 0
@@ -33,11 +33,11 @@ class ClientTask(threading.Thread):
             reqs = reqs + 1
             print('Req #%d sent..' % (reqs))
             socket.send_string(u'request #%d' % (reqs))
-            for i in range(5):
+            for _ in range(5):
                 sockets = dict(poll.poll(1000))
                 if socket in sockets:
                     msg = socket.recv()
-                    tprint('Client %s received: %s' % (identity, msg))
+                    tprint(f'Client {identity} received: {msg}')
 
         socket.close()
         context.term()
@@ -56,7 +56,7 @@ class ServerTask(threading.Thread):
         backend.bind('inproc://backend')
 
         workers = []
-        for i in range(5):
+        for _ in range(5):
             worker = ServerWorker(context)
             worker.start()
             workers.append(worker)
@@ -79,9 +79,9 @@ class ServerWorker(threading.Thread):
         tprint('Worker started')
         while True:
             ident, msg = worker.recv_multipart()
-            tprint('Worker received %s from %s' % (msg, ident))
+            tprint(f'Worker received {msg} from {ident}')
             replies = randint(0,4)
-            for i in range(replies):
+            for _ in range(replies):
                 time.sleep(1. / (randint(1,10)))
                 worker.send_multipart([ident, msg])
 

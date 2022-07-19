@@ -25,12 +25,12 @@ def run_worker(context):
     socket.connect("tcp://localhost:5560")
     while True:
         message = yield from socket.recv()
-        print("Received request: %s" % message)
+        print(f"Received request: {message}")
         message = message.decode('utf-8')
-        reply = '{}, World'.format(message)
+        reply = f'{message}, World'
         reply = reply.encode('utf-8')
         yield from socket.send(reply)
-        print("Sent reply: {}".format(reply))
+        print(f"Sent reply: {reply}")
 
 
 @asyncio.coroutine

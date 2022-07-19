@@ -19,7 +19,7 @@ identity = "%04X-%04X" % (randint(0, 0x10000), randint(0,0x10000))
 worker.setsockopt_string(zmq.IDENTITY, identity)
 worker.connect("tcp://localhost:5556")
 
-print("I: (%s) worker ready" % identity)
+print(f"I: ({identity}) worker ready")
 worker.send_string(LRU_READY)
 
 cycles = 0
@@ -30,11 +30,11 @@ while True:
 
     cycles += 1
     if cycles>0 and randint(0, 5) == 0:
-        print("I: (%s) simulating a crash" % identity)
+        print(f"I: ({identity}) simulating a crash")
         break
     elif cycles>3 and randint(0, 5) == 0:
-        print("I: (%s) simulating CPU overload" % identity)
+        print(f"I: ({identity}) simulating CPU overload")
         time.sleep(3)
-    print("I: (%s) normal reply" % identity)
+    print(f"I: ({identity}) normal reply")
     time.sleep(1) # Do some heavy work
     worker.send_multipart(msg)

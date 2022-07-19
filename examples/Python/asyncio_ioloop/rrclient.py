@@ -29,11 +29,11 @@ def run_client(context, num_requests):
     socket.connect("tcp://localhost:5559")
     #  Do num_requests requests, waiting each time for a response
     for requestno in range(1, num_requests + 1):
-        message = 'Hello {}'.format(requestno)
+        message = f'Hello {requestno}'
         message = message.encode('utf-8')
         yield from socket.send(message)
         message = yield from socket.recv()
-        print("Received reply %s [%s]" % (requestno, message))
+        print(f"Received reply {requestno} [{message}]")
 
 
 @asyncio.coroutine

@@ -45,7 +45,7 @@ def client_task(ctx, pipe):
         chunks += 1
         size = len(chunk)
         total += size
-        print('(client) received chunk: {}'.format(size))
+        print(f'(client) received chunk: {size}')
         if size == 0:
             break   # whole file received
     message = "%i chunks received, %i bytes" % (chunks, total)
@@ -86,18 +86,18 @@ def server_task(ctx):
                 return   # shutting down, quit
             else:
                 raise
-    print('(server) received request.  command: {}'.format(command))
+    print(f'(server) received request.  command: {command}')
     assert command == b"fetch"
     while True:
         data = infile.read(CHUNK_SIZE)
         data = data.encode('utf-8')
         yield from router.send_multipart([identity, data])
-        print('(server) sent chunk.  length: {}'.format(len(data)))
+        print(f'(server) sent chunk.  length: {len(data)}')
         if not data:
             break
         count += 1
         total += len(data)
-    message = 'server sent {} chunks, {} bytes'.format(count, total)
+    message = f'server sent {count} chunks, {total} bytes'
     print(message)
     print('(server_task) finished')
     return ('server', message)
@@ -110,7 +110,7 @@ def monitor(pipe):
     message = None
     try:
         mesg = yield from pipe.recv()
-        message = 'monitor received: {}'.format(mesg)
+        message = f'monitor received: {mesg}'
         print(message)
     except KeyboardInterrupt:
         pass
@@ -133,7 +133,7 @@ def run(loop):
     ]
     loop.run_until_complete(asyncio.wait(tasks))
     results = [task.result() for task in tasks]
-    print('results: {}'.format(results))
+    print(f'results: {results}')
     del a, b
     print('(run) finished')
 

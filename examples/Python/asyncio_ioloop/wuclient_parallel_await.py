@@ -28,20 +28,20 @@ async def run_client(context, zipcode):
     #  Socket to talk to server
     socket = context.socket(zmq.SUB)
     socket.connect(SERVER_ADDRESS)
-    print('Collecting updates from weather server for zipcode: {}'.format(
-        zipcode))
+    print(f'Collecting updates from weather server for zipcode: {zipcode}')
     socket.setsockopt_string(zmq.SUBSCRIBE, zipcode)
     # Process 5 updates
     total_temp = 0
     for update_nbr in range(5):
         string = await socket.recv()
         string = string.decode('utf-8')
-        print('I: received -- string: "{}"'.format(string))
+        print(f'I: received -- string: "{string}"')
         zipcode, temperature, relhumidity = string.split()
         total_temp += int(temperature)
-    result = "Average temperature for zipcode '%s' was %dF" % (
-        zipcode, total_temp / update_nbr)
-    return result
+    return "Average temperature for zipcode '%s' was %dF" % (
+        zipcode,
+        total_temp / update_nbr,
+    )
 
 
 async def run_client_parallel(context, zipcode):

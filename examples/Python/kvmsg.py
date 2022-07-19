@@ -94,9 +94,9 @@ class KVMsg(object):
     def from_msg(cls, msg):
         """Construct key-value message from a multipart message"""
         key, seq_s, uuid, prop_s, body = msg
-        key = key if key else None
+        key = key or None
         seq = struct.unpack('!q',seq_s)[0]
-        body = body if body else None
+        body = body or None
         prop = decode_properties(prop_s)
         return cls(seq, uuid=uuid, key=key, properties=prop, body=body)
 
@@ -108,7 +108,7 @@ class KVMsg(object):
             size = len(self.body)
             data = repr(self.body)
 
-        mstr = "[seq:{seq}][key:{key}][size:{size}][props:{props}][data:{data}]".format(
+        return "[seq:{seq}][key:{key}][size:{size}][props:{props}][data:{data}]".format(
             seq=self.sequence,
             # uuid=hexlify(self.uuid),
             key=self.key,
@@ -116,11 +116,10 @@ class KVMsg(object):
             props=encode_properties(self.properties),
             data=data,
         )
-        return mstr
 
 
     def dump(self):
-        print("<<", str(self), ">>", file=sys.stderr)
+        print("<<", self, ">>", file=sys.stderr)
 # ---------------------------------------------------------------------
 # Runs self test of class
 

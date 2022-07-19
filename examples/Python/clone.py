@@ -216,8 +216,6 @@ def clone_agent(ctx, pipe):
             items = dict(poller.poll(poll_timer))
         except:
             raise # DEBUG
-            break # Context has been shut down
-
         if agent.pipe in items:
             agent.control_message()
         elif server_socket in items:

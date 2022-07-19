@@ -38,7 +38,7 @@ def worker_routine(ident):
     # Socket to talk to dispatcher
     socket = Ctx.socket(zmq.REP)
     socket.connect(Url_worker)
-    printdbg('(worker_routine) {} started'.format(ident))
+    printdbg(f'(worker_routine) {ident} started')
     while True:
         printdbg('(worker_routine) waiting for request')
         message = yield socket.recv()
@@ -48,9 +48,9 @@ def worker_routine(ident):
         # Do some 'work'
         yield gen.sleep(1)
         # Send reply back to client
-        message = '{} world, from {}'.format(message, ident).encode('utf-8')
+        message = f'{message} world, from {ident}'.encode('utf-8')
         yield socket.send(message)
-        printdbg('(worker_routine) sent message: {}'.format(message))
+        printdbg(f'(worker_routine) sent message: {message}')
 
 
 @gen.coroutine
@@ -66,7 +66,7 @@ def run(loop):
     # Caution: Do *not* use lambda to create the function call to the worker.
     #     lambda does not work correctly inside a for-statement.
     for idx in range(5):
-        ident = 'worker {}'.format(idx)
+        ident = f'worker {idx}'
         loop.add_callback(partial(worker_routine, ident))
     poller = Poller()
     poller.register(clients, zmq.POLLIN)
@@ -77,22 +77,18 @@ def run(loop):
         events = dict(events)
         if clients in events:
             message = yield clients.recv_multipart()
-            printdbg('(run) received from client message_parts: {}'.format(
-                message))
+            printdbg(f'(run) received from client message_parts: {message}')
             client, empty, message = message[:3]
-            printdbg('(run) received from client message: {}'.format(
-                message))
+            printdbg(f'(run) received from client message: {message}')
             yield workers.send_multipart([client, b'', message])
-            printdbg('(run) sent message to workers: {}'.format(message))
+            printdbg(f'(run) sent message to workers: {message}')
         elif workers in events:
             message = yield workers.recv_multipart()
-            printdbg('(run) received from worker message_parts: {}'.format(
-                message))
+            printdbg(f'(run) received from worker message_parts: {message}')
             client, empty, message = message[:3]
-            printdbg('(run) received from worker message: {}'.format(
-                message))
+            printdbg(f'(run) received from worker message: {message}')
             yield clients.send_multipart([client, b'', message])
-            printdbg('(run) sent message to clients: {}'.format(message))
+            printdbg(f'(run) sent message to clients: {message}')
 
 
 def main():

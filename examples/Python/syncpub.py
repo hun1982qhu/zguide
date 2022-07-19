@@ -31,7 +31,7 @@ def main():
         print(f"+1 subscriber ({subscribers}/{SUBSCRIBERS_EXPECTED})")
 
     # Now broadcast exactly 1M updates followed by END
-    for i in range(1000000):
+    for _ in range(1000000):
         publisher.send(b"Rhubarb")
 
     publisher.send(b"END")

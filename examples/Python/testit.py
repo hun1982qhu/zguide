@@ -3,18 +3,16 @@ import os
 CHUNK_SIZE = 250000
 
 def main():
-    file = open("testdata", "rb")
+    with open("testdata", "rb") as file:
+        offset = 0
 
-    offset = 0
+        while True:
+            file.seek(offset, os.SEEK_SET)
+            if data := file.read(CHUNK_SIZE):
+                offset += len(data)
 
-    while True:
-        file.seek(offset, os.SEEK_SET)
-        data = file.read(CHUNK_SIZE)
-        if not data:
-            break
-        offset += len(data)
-
-    file.close()
+            else:
+                break
 
 if __name__ == '__main__':
     main()
