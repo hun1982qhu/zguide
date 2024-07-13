@@ -25,15 +25,17 @@ except NameError:
 NBR_CLIENTS = 10
 NBR_WORKERS = 3
 
+
 def tprint(msg):
-    sys.stdout.write(msg + '\n')
+    sys.stdout.write(msg + "\n")
     sys.stdout.flush()
+
 
 def client_task(name, i):
     """Request-reply client using REQ socket"""
     ctx = zmq.Context()
     client = ctx.socket(zmq.REQ)
-    client.identity = (u"Client-%s-%s" % (name, i)).encode('ascii')
+    client.identity = ("Client-%s-%s" % (name, i)).encode("ascii")
     client.connect("ipc://%s-localfe.ipc" % name)
     while True:
         client.send(b"HELLO")
@@ -50,7 +52,7 @@ def worker_task(name, i):
     """Worker using REQ socket to do LRU routing"""
     ctx = zmq.Context()
     worker = ctx.socket(zmq.REQ)
-    worker.identity = (u"Worker-%s-%s" % (name, i)).encode('ascii')
+    worker.identity = ("Worker-%s-%s" % (name, i)).encode("ascii")
     worker.connect("ipc://%s-localbe.ipc" % name)
 
     # Tell broker we're ready for work
@@ -67,6 +69,7 @@ def worker_task(name, i):
         msg[-1] = b"OK"
         worker.send_multipart(msg)
 
+
 def main(myself, peers):
     print("I: preparing broker at %s..." % myself)
 
@@ -76,7 +79,7 @@ def main(myself, peers):
     # Bind cloud frontend to endpoint
     cloudfe = ctx.socket(zmq.ROUTER)
     if not isinstance(myself, bytes):
-        ident = myself.encode('ascii')
+        ident = myself.encode("ascii")
     else:
         ident = myself
     cloudfe.identity = ident
@@ -89,9 +92,8 @@ def main(myself, peers):
         tprint("I: connecting to cloud frontend at %s" % peer)
         cloudbe.connect("ipc://%s-cloud.ipc" % peer)
 
-
     if not isinstance(peers[0], bytes):
-        peers = [peer.encode('ascii') for peer in peers]
+        peers = [peer.encode("ascii") for peer in peers]
 
     # Prepare local frontend and backend
     localfe = ctx.socket(zmq.ROUTER)
@@ -145,7 +147,7 @@ def main(myself, peers):
             workers.append(address)
 
             # If it's READY, don't route the message any further
-            if msg[-1] == b'READY':
+            if msg[-1] == b"READY":
                 msg = None
         elif cloudbe in events:
             msg = cloudbe.recv_multipart()
@@ -180,13 +182,14 @@ def main(myself, peers):
             # Here we'd normally use cloud status information
             if reroutable and peers and random.randint(0, 4) == 0:
                 # Route to random broker peer
-                msg = [random.choice(peers), b''] + msg
+                msg = [random.choice(peers), b""] + msg
                 cloudbe.send_multipart(msg)
             else:
-                msg = [workers.pop(0), b''] + msg
+                msg = [workers.pop(0), b""] + msg
                 localbe.send_multipart(msg)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) >= 2:
         main(myself=sys.argv[1], peers=sys.argv[2:])
     else:
